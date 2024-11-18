@@ -8,7 +8,7 @@ This project is a copy of the popular game 2048, developed entirely in JavaScrip
 - **JavaScript** – for adding interactivity and handling events on the page
 
 ## Useful links
-- [DEMO LINK]()
+- [DEMO LINK](https://yurko-komanitskyi.github.io/2048game/)
 
 ## Getting Started
 To set up and run the project locally, follow these steps:
