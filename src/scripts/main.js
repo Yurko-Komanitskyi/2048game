@@ -16,7 +16,6 @@ let endGame = false;
 let winOrLose = false;
 
 let score = 0;
-let scoreUpdate = 0;
 
 render();
 
@@ -97,7 +96,12 @@ function render() {
   buttonStart.addEventListener('click', GameController);
 }
 
-document.addEventListener('keydown', (ev) => {
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+
+function handleMove(key) {
   if (endGame) {
     return;
   }
@@ -106,15 +110,13 @@ document.addEventListener('keydown', (ev) => {
     return;
   }
 
-  switch (ev.key) {
+  switch (key) {
     case 'ArrowUp':
-      scoreUpdate = 0;
-
       const copyUp = up();
 
       if (checkCopy(copyUp)) {
         masNumbers = copyUp;
-        score += scoreUpdate;
+        hightScore();
         spawnNumb();
       } else {
         loseOrNo();
@@ -122,13 +124,11 @@ document.addEventListener('keydown', (ev) => {
       render();
       break;
     case 'ArrowDown':
-      scoreUpdate = 0;
-
       const copyDown = down();
 
       if (checkCopy(copyDown)) {
         masNumbers = copyDown;
-        score += scoreUpdate;
+        hightScore();
         spawnNumb();
       } else {
         loseOrNo();
@@ -136,13 +136,11 @@ document.addEventListener('keydown', (ev) => {
       render();
       break;
     case 'ArrowLeft':
-      scoreUpdate = 0;
-
       const copyLeft = left();
 
       if (checkCopy(copyLeft)) {
         masNumbers = copyLeft;
-        score += scoreUpdate;
+        hightScore();
         spawnNumb();
       } else {
         loseOrNo();
@@ -150,13 +148,11 @@ document.addEventListener('keydown', (ev) => {
       render();
       break;
     case 'ArrowRight':
-      scoreUpdate = 0;
-
       const copyRigth = rigth();
 
       if (checkCopy(copyRigth)) {
         masNumbers = copyRigth;
-        score += scoreUpdate;
+        hightScore();
         spawnNumb();
       } else {
         loseOrNo();
@@ -166,7 +162,65 @@ document.addEventListener('keydown', (ev) => {
     default:
       break;
   }
+}
+
+document.addEventListener('touchstart', (ev) => {
+  const touch = ev.touches[0];
+
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
 });
+
+document.addEventListener('touchend', (ev) => {
+  const touch = ev.changedTouches[0];
+
+  touchEndX = touch.clientX;
+  touchEndY = touch.clientY;
+
+  handleSwipe();
+});
+
+function handleSwipe() {
+  const deltaX = touchEndX - touchStartX;
+  const deltaY = touchEndY - touchStartY;
+
+  if (Math.abs(deltaX) > Math.abs(deltaY)) {
+    if (deltaX > 30) {
+      handleMove('ArrowRight');
+    } else if (deltaX < -30) {
+      handleMove('ArrowLeft');
+    }
+  } else {
+    if (deltaY > 30) {
+      handleMove('ArrowDown');
+    } else if (deltaY < -30) {
+      handleMove('ArrowUp');
+    }
+  }
+}
+
+document.addEventListener('keydown', (ev) => {
+  handleMove(ev.key);
+});
+
+function hightScore() {
+  let max = +masNumbers[0][0];
+
+  for (let i = 0; i < masNumbers.length; i++) {
+    for (let j = 0; j < masNumbers[i].length; j++) {
+      if (max < +masNumbers[i][j]) {
+        max = +masNumbers[i][j];
+      }
+    }
+  }
+
+  score = max;
+
+  if (score >= 2048) {
+    endGame = true;
+    winOrLose = true;
+  }
+}
 
 function GameController() {
   if (gameStart) {
@@ -234,8 +288,8 @@ function spawnNumb() {
 
   const newPosition = Math.floor(Math.random() * indexOfEmpty.length);
 
-  masNumbers[indexOfEmpty[newPosition].x][indexOfEmpty[newPosition].y] =
-    twoOrFour();
+  masNumbers[indexOfEmpty[newPosition].x][indexOfEmpty[newPosition].y]
+    = twoOrFour();
 }
 
 function up() {
@@ -330,12 +384,6 @@ function slide(masiv) {
   for (let i = 1; i < mas.length; i++) {
     if (mas[i] === mas[i - 1]) {
       mas[i - 1] = mas[i] + mas[i];
-      scoreUpdate += mas[i - 1];
-
-      if (score >= 2048) {
-        endGame = true;
-        winOrLose = true;
-      }
       mas[i] = '';
     }
   }
